@@ -1,50 +1,38 @@
 from models import User
-import sqlite3
+from utils import create_table, conn
 from sqlite3 import OperationalError
-
-conn = sqlite3.connect("db.sqlite3")
-
-
-def create_table():
-    query = """
-        CREATE TABLE `User` (
-        `first_name` VARCHAR NOT NULL,
-        `last_name` VARCHAR NOT NULL,
-        `password` VARCHAR NOT NULL,
-        `aadhar` VARCHAR NOT NULL,
-        `contact` VARCHAR NOT NULL,
-        `address` VARCHAR NOT NULL,
-        `email` VARCHAR NOT NULL
-    )
-    """
-    conn.execute(query)
+from hashlib import sha256
 
 
 class AccountOpen:
-    def create_user(self, details: User):
+    def __init__(self, details: User) -> None:
+        self.details = details
+
+    def create_user(self):
 
         query = r"""INSERT INTO user (first_name, last_name, password, aadhar, contact, address, email) VALUES("{}", "{}", "{}", "{}", "{}", "{}", "{}")
             """.format(
-            details.first_name,
-            details.last_name,
-            details.password,
-            details.aadhar,
-            details.contact,
-            details.address,
-            details.email,
+            self.details.first_name,
+            self.details.last_name,
+            sha256(self.details.password.encode("utf-8")).hexdigest(),
+            self.details.aadhar,
+            self.details.contact,
+            self.details.address,
+            self.details.email,
         )
         conn.execute(query)
         conn.commit()
 
     def check_exist(self):
         cursor = conn.execute(
-            f"""SELECT aadhar FROM user WHERE aadhar = {self.details.aadhar}"""
+            f"""SELECT * FROM User WHERE aadhar = '{self.details.aadhar}'"""
         )
 
         for row in cursor:
-            print(row[0])
+            print(row)
 
 
+# Below lines are just for testing purpose.
 if __name__ == "__main__":
 
     try:
@@ -63,5 +51,6 @@ if __name__ == "__main__":
             "email": "",
         }
     )
-    print(user.address)
-    AccountOpen().create_user(user)
+    ras = AccountOpen(user)
+    ras.create_user()
+    ras.check_exist()

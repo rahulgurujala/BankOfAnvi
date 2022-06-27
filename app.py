@@ -32,7 +32,7 @@ class AccountOpen:
             print(row)
 
 
-# Below lines are just for testing purpose.
+# Below lines are just for testing purpose
 if __name__ == "__main__":
 
     try:
